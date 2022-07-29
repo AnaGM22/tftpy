@@ -10,3 +10,11 @@ This client accepts the following options:
 """
 
 
+def _main():
+    """
+    Implements the console based client.
+    """
+#:
+
+if __name__ == '__main__':
+    _main()
