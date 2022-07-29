@@ -1,5 +1,3 @@
-# tftpy14
+# tftpy
 
 A TFTP client developed in Python.
-
-# tftpy
