@@ -2,7 +2,7 @@
 This module handles all TFTP related data structures and 
 methods.
 
-(C) João Galamba, 2022
+(C) Ana Mendes, 2022
 """
 # pylint: disable=redefined-outer-name
 # pylint: disable=no-name-in-module
