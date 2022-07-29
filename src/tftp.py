@@ -150,6 +150,13 @@ def get_file(serv_addr: INET4Address, file_name: str):
 # 5. Voltar a 4
 #:
 
+def put_file(serv_addr: INET4Address, file_name: str):
+    """
+    WRQ a file given by filename to a remote TFTP server given
+    by serv_addr.
+    """
+#:
+
 ################################################################################
 ##
 ##      PACKET PACKING AND UNPACKING
