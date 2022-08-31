@@ -20,6 +20,7 @@ from socket import (
     AF_INET, SOCK_DGRAM,
 )
 from typing import Tuple
+import os
 
 ################################################################################
 ##
@@ -241,6 +242,32 @@ def unpack_err(packet: bytes) -> Tuple[int, str]:
     return error_num, error_msg[:-1]
 #:
 
+def treat_DAT_Equal(data, path, filename_tosave):
+    "Tratamento / Leitura do pack do tipo DAT após RRQ"
+  
+    dat = unpack_dat(data)
+    option, blk, dat_r = dat
+    dat_r = dat_r.encode()
+
+    if isinstance(filename_tosave, str):
+        filename_tosave = filename_tosave.encode()
+    
+    file_write = open(filename_tosave, 'wb').write(dat_r)
+    print("File created --> %s" % (filename_tosave.decode()))
+    option = 4
+    send_ack = pack_ack(option, blk)    
+    return send_ack, filename_tosave
+#:
+
+def treat_DAT_Bigger(data, filename_tosave):
+    dat = unpack_dat(data)
+    option, blk, dat_r = dat
+    dat_r = dat_r.encode()    
+    file_write = open(filename_tosave, 'ab').write(dat_r)    
+    option = 4
+    send_ack = pack_ack(option, blk)
+    return send_ack, filename_tosave
+
 ################################################################################
 ##
 ##      ERRORS AND EXCEPTIONS
@@ -342,6 +369,53 @@ def get_host_info(server_addr: str) -> Tuple[str, str]:
 def is_ascii_printable(txt: str) -> bool:
     return not set(txt) - set(string.printable)
     # ALTERNATIVA: return set(txt).issubset(string.printable)
+#:
+
+# Check Connection
+def checkConnection(host):
+
+    path = re.compile("([0-9] received)")
+    ping = os.popen('ping -c 2 %s' % host).read()
+    pat = re.search(path, ping).group()
+    if pat == '0 received':
+        msg = "Cant connect with '%s' " % (host)
+        return msg
+    else:
+        return True
+#:
+
+def checkPack(data):
+    "Determina o tipo de pack: RRQ, WRQ, DAT, ACK, ERR"
+
+    # Option 1 to 6 in hexadecimal
+    RRQ = b'\x00\x01'
+    WRQ = b'\x00\x02'
+    DAT = b'\x00\x03'
+    ACK = b'\x00\x04'
+    ERR = b'\x00\x05'
+    DIR = b'\x00\x06'
+
+    path_all = re.compile(b"(^[\x00-\x05].)")
+    checkPath = re.search(path_all, data)
+    
+    if checkPath == None:
+        return data
+    else:
+        check = checkPath.group()
+
+    if check == RRQ:
+        out = "Packet received RRQ: "
+    if check == WRQ:
+        out = "Packet received WRQ: "
+    if check == DAT:
+        out = "Packet received DAT: "
+    if check == ACK:
+        out = "Packet received ACK: "
+    if check == ERR:
+        out = "Packet received ERR: "
+    if check == DIR:
+        out = "Treating DIR"
+    return check
 #:
 
 if __name__ == '__main__':
